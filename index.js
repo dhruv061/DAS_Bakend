@@ -18,10 +18,6 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(authorRouter);
 
-app.get("/", (req, res) => {
-  res.send("Hello, This is live ");
-});
-
 //Database connections
 mongoose.set("strictQuery", false);
 mongoose
