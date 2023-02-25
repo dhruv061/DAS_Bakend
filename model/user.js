@@ -23,7 +23,7 @@ const createSchema = mongoose.Schema({
   },
   enrollmentno: {
     required: true,
-    type: Number,
+    type: String,
     trim: true,
   },
   branchsem: {
