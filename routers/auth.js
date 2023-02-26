@@ -62,7 +62,7 @@ authorRouter.post("/api/signin", async (req, res) => {
 //Token Verified API
 authorRouter.post("/tokenIsValid", async (req, res) => {
   try {
-    const token = req.headers("x-auth-token");
+    const token = req.header("x-auth-token");
     if (!token) {
       return res.json(false);
     }
@@ -72,7 +72,7 @@ authorRouter.post("/tokenIsValid", async (req, res) => {
       return res.json(false);
     }
 
-    const user = await User.findOne(verified.id);
+    const user = await User.findById(verified.id);
     if (!user) {
       return res.json(false);
     }
@@ -87,7 +87,7 @@ authorRouter.post("/tokenIsValid", async (req, res) => {
 //auth is middle ware
 authorRouter.get("/", auth, async (req, res) => {
   const user = await User.findById(req.user);
-  res.json({ ...user._doc, token: req.token });
+  res.json({...user._doc, token: req.token });
 });
 
 module.exports = authorRouter;
