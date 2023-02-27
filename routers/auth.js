@@ -2,6 +2,8 @@ const express = require("express");
 const User = require("../model/user");
 
 const authorRouter = express.Router();
+//for paswword compare || store hash password
+const bcryptjs = require("bcryptjs");
 
 //for signin
 const jwt = require("jsonwebtoken");
@@ -21,12 +23,15 @@ authorRouter.post("/api/signup", async (req, res) => {
         .json({ msg: "User with same email alredy exits!" });
     }
 
+    //here 8 is solt --> 8 charcter password
+    const hashPassword = await bcryptjs.hash(password, 8);
+
     let user = new User({
       name,
       email,
       enrollmentno,
       branchsem,
-      password,
+      password: hashPassword,
     });
 
     user = await user.save();
@@ -48,6 +53,12 @@ authorRouter.post("/api/signin", async (req, res) => {
       return res
         .status(400)
         .json({ msg: "User with this email does not exist!" });
+    }
+
+    //check password match
+    const ispasswordMatch = await bcryptjs.compare(password, user.password);
+    if (!ispasswordMatch) {
+      return res.status(400).json({ msg: "Password is Invalid" });
     }
 
     //JWT token for signin
@@ -87,7 +98,7 @@ authorRouter.post("/tokenIsValid", async (req, res) => {
 //auth is middle ware
 authorRouter.get("/", auth, async (req, res) => {
   const user = await User.findById(req.user);
-  res.json({...user._doc, token: req.token });
+  res.json({ ...user._doc, token: req.token });
 });
 
 module.exports = authorRouter;
