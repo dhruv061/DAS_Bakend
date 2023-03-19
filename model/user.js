@@ -43,4 +43,4 @@ const User_6IT = mongoose.model("6IT Students", createSchema, "6IT_Students");
 const User_6CE = mongoose.model("6CE Students", createSchema, "6CE_Students");
 const User_6ME = mongoose.model("6ME Students", createSchema, "6ME_Students");
 
-module.exports = { User_6IT, User_6CE,User_6ME};
+module.exports = { User_6IT, User_6CE, User_6ME };

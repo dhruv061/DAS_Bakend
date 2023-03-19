@@ -9,6 +9,7 @@ const bcryptjs = require("bcryptjs");
 
 //for signin
 const jwt = require("jsonwebtoken");
+// const { auth1, auth2, auth3 } = require("../middlewares/auth");
 const auth = require("../middlewares/auth");
 
 //for getting attendace schema
@@ -23,184 +24,155 @@ const {
 
 //**************************************************************************************/
 
-//SIGN-UP API --> 6IT
-authorRouter.post("/api/signup/6IT", async (req, res) => {
+//SIGN-UP API
+authorRouter.post("/api/signup", async (req, res) => {
   try {
     //-->get the data from the client
     const { name, email, enrollmentno, branchsem, password } = req.body;
 
-    //check if user exits or not
-    const existinguser = await User_6IT.findOne({ email });
-    if (existinguser) {
-      return res
-        .status(400)
-        .json({ msg: "User with same email alredy exits!" });
+    //6CE
+    if (branchsem == "6CE") {
+      //check if user exits or not
+      const existinguser = await User_6CE.findOne({ email });
+      if (existinguser) {
+        return res
+          .status(400)
+          .json({ msg: "User with same email alredy exits!" });
+      }
+
+      //here 8 is solt --> 8 charcter password
+      const hashPassword = await bcryptjs.hash(password, 8);
+
+      let user = new User_6CE({
+        name,
+        email,
+        enrollmentno,
+        branchsem,
+        password: hashPassword,
+      });
+
+      user = await user.save();
+      res.status(201).send(user);
     }
 
-    //here 8 is solt --> 8 charcter password
-    const hashPassword = await bcryptjs.hash(password, 8);
+    //6IT
+    else if (branchsem == "6IT") {
+      //check if user exits or not
+      const existinguser = await User_6IT.findOne({ email });
+      if (existinguser) {
+        return res
+          .status(400)
+          .json({ msg: "User with same email alredy exits!" });
+      }
 
-    let user = new User_6IT({
-      name,
-      email,
-      enrollmentno,
-      branchsem,
-      password: hashPassword,
-    });
+      //here 8 is solt --> 8 charcter password
+      const hashPassword = await bcryptjs.hash(password, 8);
 
-    user = await user.save();
-    res.status(201).send(user);
+      let user = new User_6IT({
+        name,
+        email,
+        enrollmentno,
+        branchsem,
+        password: hashPassword,
+      });
+
+      user = await user.save();
+      res.status(201).send(user);
+    }
+
+    //6ME
+    else {
+      //check if user exits or not
+      const existinguser = await User_6ME.findOne({ email });
+      if (existinguser) {
+        return res
+          .status(400)
+          .json({ msg: "User with same email alredy exits!" });
+      }
+
+      //here 8 is solt --> 8 charcter password
+      const hashPassword = await bcryptjs.hash(password, 8);
+
+      let user = new User_6ME({
+        name,
+        email,
+        enrollmentno,
+        branchsem,
+        password: hashPassword,
+      });
+
+      user = await user.save();
+      res.status(201).send(user);
+    }
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-//SIGN-UP API --> 6CE
-authorRouter.post("/api/signup/6CE", async (req, res) => {
-  try {
-    //-->get the data from the client
-    const { name, email, enrollmentno, branchsem, password } = req.body;
-
-    //check if user exits or not
-    const existinguser = await User_6CE.findOne({ email });
-    if (existinguser) {
-      return res
-        .status(400)
-        .json({ msg: "User with same email alredy exits!" });
-    }
-
-    //here 8 is solt --> 8 charcter password
-    const hashPassword = await bcryptjs.hash(password, 8);
-
-    let user = new User_6CE({
-      name,
-      email,
-      enrollmentno,
-      branchsem,
-      password: hashPassword,
-    });
-
-    user = await user.save();
-    res.status(201).send(user);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-//SIGN-UP API --> 6ME
-authorRouter.post("/api/signup/6ME", async (req, res) => {
-  try {
-    //-->get the data from the client
-    const { name, email, enrollmentno, branchsem, password } = req.body;
-
-    //check if user exits or not
-    const existinguser = await User_6ME.findOne({ email });
-    if (existinguser) {
-      return res
-        .status(400)
-        .json({ msg: "User with same email alredy exits!" });
-    }
-
-    //here 8 is solt --> 8 charcter password
-    const hashPassword = await bcryptjs.hash(password, 8);
-
-    let user = new User_6ME({
-      name,
-      email,
-      enrollmentno,
-      branchsem,
-      password: hashPassword,
-    });
-
-    user = await user.save();
-    res.status(201).send(user);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-//Sign-In API --> 6IT
-authorRouter.post("/api/signin/6IT", async (req, res) => {
+//Sign-In API
+authorRouter.post("/api/signin", async (req, res) => {
   try {
     //get data from client
-    const { email, password } = req.body;
+    const { email, password, branchsem } = req.body;
 
-    //check if user exits or not
-    const user = await User_6IT.findOne({ email });
-    if (!user) {
-      return res
-        .status(400)
-        .json({ msg: "User with this email does not exist!" });
+    if (branchsem == "6IT") {
+      //check if user exits or not
+      const user = await User_6IT.findOne({ email });
+      if (!user) {
+        return res
+          .status(400)
+          .json({ msg: "User with this email does not exist!" });
+      }
+
+      //check password match
+      const ispasswordMatch = await bcryptjs.compare(password, user.password);
+      if (!ispasswordMatch) {
+        return res.status(400).json({ msg: "Password is Invalid" });
+      }
+
+      //JWT token for signin
+      const token = jwt.sign({ id: user._id }, "passwordKey");
+
+      res.json({ token, ...user._doc });
+    } else if (branchsem == "6CE") {
+      //check if user exits or not
+      const user = await User_6CE.findOne({ email });
+      if (!user) {
+        return res
+          .status(400)
+          .json({ msg: "User with this email does not exist!" });
+      }
+
+      //check password match
+      const ispasswordMatch = await bcryptjs.compare(password, user.password);
+      if (!ispasswordMatch) {
+        return res.status(400).json({ msg: "Password is Invalid" });
+      }
+
+      //JWT token for signin
+      const token = jwt.sign({ id: user._id }, "passwordKey");
+
+      res.json({ token, ...user._doc });
+    } else {
+      //check if user exits or not
+      const user = await User_6ME.findOne({ email });
+      if (!user) {
+        return res
+          .status(400)
+          .json({ msg: "User with this email does not exist!" });
+      }
+
+      //check password match
+      const ispasswordMatch = await bcryptjs.compare(password, user.password);
+      if (!ispasswordMatch) {
+        return res.status(400).json({ msg: "Password is Invalid" });
+      }
+
+      //JWT token for signin
+      const token = jwt.sign({ id: user._id }, "passwordKey");
+
+      res.json({ token, ...user._doc });
     }
-
-    //check password match
-    const ispasswordMatch = await bcryptjs.compare(password, user.password);
-    if (!ispasswordMatch) {
-      return res.status(400).json({ msg: "Password is Invalid" });
-    }
-
-    //JWT token for signin
-    const token = jwt.sign({ id: user._id }, "passwordKey");
-
-    res.json({ token, ...user._doc });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-//Sign-In API --> 6CE
-authorRouter.post("/api/signin/6CE", async (req, res) => {
-  try {
-    //get data from client
-    const { email, password } = req.body;
-
-    //check if user exits or not
-    const user = await User_6CE.findOne({ email });
-    if (!user) {
-      return res
-        .status(400)
-        .json({ msg: "User with this email does not exist!" });
-    }
-
-    //check password match
-    const ispasswordMatch = await bcryptjs.compare(password, user.password);
-    if (!ispasswordMatch) {
-      return res.status(400).json({ msg: "Password is Invalid" });
-    }
-
-    //JWT token for signin
-    const token = jwt.sign({ id: user._id }, "passwordKey");
-
-    res.json({ token, ...user._doc });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-//Sign-In API --> 6ME
-authorRouter.post("/api/signin/6ME", async (req, res) => {
-  try {
-    //get data from client
-    const { email, password } = req.body;
-
-    //check if user exits or not
-    const user = await User_6ME.findOne({ email });
-    if (!user) {
-      return res
-        .status(400)
-        .json({ msg: "User with this email does not exist!" });
-    }
-
-    //check password match
-    const ispasswordMatch = await bcryptjs.compare(password, user.password);
-    if (!ispasswordMatch) {
-      return res.status(400).json({ msg: "Password is Invalid" });
-    }
-
-    //JWT token for signin
-    const token = jwt.sign({ id: user._id }, "passwordKey");
-
-    res.json({ token, ...user._doc });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -209,7 +181,8 @@ authorRouter.post("/api/signin/6ME", async (req, res) => {
 //**********************************************************************************************/
 
 //Token Verified API
-authorRouter.post("/tokenIsValid", async (req, res) => {
+//6CE
+authorRouter.post("/tokenIsValid/6CE", async (req, res) => {
   try {
     const token = req.header("x-auth-token");
     if (!token) {
@@ -221,7 +194,7 @@ authorRouter.post("/tokenIsValid", async (req, res) => {
       return res.json(false);
     }
 
-    const user = await User.findById(verified.id);
+    const user = await User_6CE.findById(verified.id);
     if (!user) {
       return res.json(false);
     }
@@ -232,14 +205,77 @@ authorRouter.post("/tokenIsValid", async (req, res) => {
   }
 });
 
+//6IT
+authorRouter.post("/tokenIsValid/6IT", async (req, res) => {
+  try {
+    const token = req.header("x-auth-token");
+    if (!token) {
+      return res.json(false);
+    }
+
+    const verified = jwt.verify(token, "passwordKey");
+    if (!verified) {
+      return res.json(false);
+    }
+
+    const user = await User_6IT.findById(verified.id);
+    if (!user) {
+      return res.json(false);
+    }
+
+    res.json(true);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//6ME
+authorRouter.post("/tokenIsValid/6IT", async (req, res) => {
+  try {
+    const token = req.header("x-auth-token");
+    if (!token) {
+      return res.json(false);
+    }
+
+    const verified = jwt.verify(token, "passwordKey");
+    if (!verified) {
+      return res.json(false);
+    }
+
+    const user = await User_6ME.findById(verified.id);
+    if (!user) {
+      return res.json(false);
+    }
+
+    res.json(true);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//**********************************************************************************************/
+
 //get user Data API
 //auth is middle ware
-authorRouter.get("/", auth, async (req, res) => {
-  const user = await User.findById(req.user);
+//6CE
+authorRouter.get("/api/getdata/6CE", auth, async (req, res) => {
+  const user = await User_6CE.findById(req.user);
   res.json({ ...user._doc, token: req.token });
 });
 
-//*********************************************************************8888*/
+//6IT
+authorRouter.get("/api/getdata/6IT", auth, async (req, res) => {
+  const user = await User_6IT.findById(req.user);
+  res.json({ ...user._doc, token: req.token });
+});
+
+//6ME
+authorRouter.get("/api/getdata/6ME", auth, async (req, res) => {
+  const user = await User_6ME.findById(req.user);
+  res.json({ ...user._doc, token: req.token });
+});
+
+//**********************************************************************/
 //markAttendanceApi's
 //PLSD
 authorRouter.post("/api/markAttendance/PLSD", async (req, res) => {
