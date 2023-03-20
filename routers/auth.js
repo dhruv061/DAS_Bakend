@@ -227,8 +227,10 @@ authorRouter.post("/api/adminSignIn", async (req, res) => {
     if (!ispasswordMatch) {
       return res.status(400).json({ msg: "Password is Invalid" });
     }
+    //JWT token for signin
+    const token = jwt.sign({ id: user._id }, "passwordKey");
 
-    res.json({ ...user._doc });
+    res.json({ token, ...user._doc });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
