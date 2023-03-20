@@ -1,7 +1,7 @@
 const express = require("express");
 
 //for getting user schema
-const { User_6IT, User_6CE, User_6ME } = require("../model/user");
+const { User_6IT, User_6CE, User_6ME, admin } = require("../model/user");
 
 const authorRouter = express.Router();
 //for paswword compare || store hash password
@@ -173,6 +173,74 @@ authorRouter.post("/api/signin", async (req, res) => {
 
       res.json({ token, ...user._doc });
     }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//Admin SIGN-UP API
+authorRouter.post("/api/adminSignup", async (req, res) => {
+  try {
+    //-->get the data from the client
+    const { EnableAttendace, email, password } = req.body;
+
+    //check if user exits or not
+    const existinguser = await admin.findOne({ email });
+    if (existinguser) {
+      return res
+        .status(400)
+        .json({ msg: "User with same email alredy exits!" });
+    }
+
+    //here 8 is solt --> 8 charcter password
+    const hashPassword = await bcryptjs.hash(password, 8);
+
+    let user = new admin({
+      EnableAttendace,
+      email,
+      password: hashPassword,
+    });
+
+    user = await user.save();
+    res.status(201).send(user);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//admin sinIn API
+authorRouter.post("/api/adminSignIn", async (req, res) => {
+  try {
+    //get data from client
+    const { email, password } = req.body;
+
+    //check if user exits or not
+    const user = await admin.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ msg: "User with this email does not exist!" });
+    }
+
+    //check password match
+    const ispasswordMatch = await bcryptjs.compare(password, user.password);
+    if (!ispasswordMatch) {
+      return res.status(400).json({ msg: "Password is Invalid" });
+    }
+
+    res.json({ ...user._doc });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//Enable Attendace API
+authorRouter.patch("/api/enableAttendace/:id", async (req, res) => {
+  try {
+    const _id = req.params.id;
+    const update = await admin.findByIdAndUpdate(_id, req.body);
+
+    res.status(201).send(update);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
