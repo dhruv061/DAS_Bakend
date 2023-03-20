@@ -378,7 +378,8 @@ authorRouter.get("/api/getdata/admin", auth, async (req, res) => {
 //PLSD
 authorRouter.post("/api/markAttendance/PLSD", async (req, res) => {
   try {
-    const { enrollmentno, Attendance, Time, Date, Sembranch } = req.body;
+    const { enrollmentno, Attendance, Time, Date, Sembranch, lectureNo } =
+      req.body;
 
     //IT
     if (Sembranch == "6IT") {
@@ -388,6 +389,7 @@ authorRouter.post("/api/markAttendance/PLSD", async (req, res) => {
         Time,
         Date,
         Sembranch,
+        lectureNo,
       });
 
       PlsdAttendace = await PlsdAttendace.save();
@@ -402,6 +404,7 @@ authorRouter.post("/api/markAttendance/PLSD", async (req, res) => {
         Time,
         Date,
         Sembranch,
+        lectureNo,
       });
 
       PlsdAttendace = await PlsdAttendace.save();
@@ -416,6 +419,7 @@ authorRouter.post("/api/markAttendance/PLSD", async (req, res) => {
         Time,
         Date,
         Sembranch,
+        lectureNo,
       });
 
       PlsdAttendace = await PlsdAttendace.save();
@@ -429,48 +433,52 @@ authorRouter.post("/api/markAttendance/PLSD", async (req, res) => {
 //IPDC
 authorRouter.post("/api/markAttendance/IPDC", async (req, res) => {
   try {
-    const { enrollmentno, Attendance, Time, Date, Sembranch } = req.body;
+    const { enrollmentno, Attendance, Time, Date, Sembranch, lectureNo } =
+      req.body;
 
     //IT
     if (Sembranch == "6IT") {
-      let PlsdAttendace = new IPDC6IT({
+      let IPDCAttendace = new IPDC6IT({
         enrollmentno,
         Attendance,
         Time,
         Date,
         Sembranch,
+        lectureNo,
       });
 
-      PlsdAttendace = await PlsdAttendace.save();
-      res.status(201).send(PlsdAttendace);
+      IPDCAttendace = await IPDCAttendace.save();
+      res.status(201).send(IPDCAttendace);
     }
 
     //CE
     if (Sembranch == "6CE") {
-      let PlsdAttendace = new IPDC6CE({
+      let IPDCAttendace = new IPDC6CE({
         enrollmentno,
         Attendance,
         Time,
         Date,
         Sembranch,
+        lectureNo,
       });
 
-      PlsdAttendace = await PlsdAttendace.save();
-      res.status(201).send(PlsdAttendace);
+      IPDCAttendace = await IPDCAttendace.save();
+      res.status(201).send(IPDCAttendace);
     }
 
     //ME
     if (Sembranch == "6ME") {
-      let PlsdAttendace = new IPDC6ME({
+      let IPDCAttendace = new IPDC6ME({
         enrollmentno,
         Attendance,
         Time,
         Date,
         Sembranch,
+        lectureNo,
       });
 
-      PlsdAttendace = await PlsdAttendace.save();
-      res.status(201).send(PlsdAttendace);
+      IPDCAttendace = await IPDCAttendace.save();
+      res.status(201).send(IPDCAttendace);
     }
   } catch (e) {
     res.status(500).json({ error: e.message });

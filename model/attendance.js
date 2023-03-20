@@ -28,6 +28,11 @@ const AttendaceSchema = mongoose.Schema({
     trim: true,
     required: true,
   },
+  lectureNo: {
+    type: String,
+    trim: true,
+    required: true,
+  },
 });
 
 //Define model for each subject
