@@ -321,6 +321,30 @@ authorRouter.post("/tokenIsValid/6IT", async (req, res) => {
   }
 });
 
+//admin
+authorRouter.post("/tokenIsValid/admin", async (req, res) => {
+  try {
+    const token = req.header("x-auth-token");
+    if (!token) {
+      return res.json(false);
+    }
+
+    const verified = jwt.verify(token, "passwordKey");
+    if (!verified) {
+      return res.json(false);
+    }
+
+    const user = await admin.findById(verified.id);
+    if (!user) {
+      return res.json(false);
+    }
+
+    res.json(true);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 //**********************************************************************************************/
 
 //get user Data API
@@ -340,6 +364,12 @@ authorRouter.get("/api/getdata/6IT", auth, async (req, res) => {
 //6ME
 authorRouter.get("/api/getdata/6ME", auth, async (req, res) => {
   const user = await User_6ME.findById(req.user);
+  res.json({ ...user._doc, token: req.token });
+});
+
+//Admin
+authorRouter.get("/api/getdata/admin", auth, async (req, res) => {
+  const user = await admin.findById(req.user);
   res.json({ ...user._doc, token: req.token });
 });
 
