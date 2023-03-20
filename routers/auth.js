@@ -178,6 +178,7 @@ authorRouter.post("/api/signin", async (req, res) => {
   }
 });
 
+//**************************************************************************************/
 //Admin SIGN-UP API
 authorRouter.post("/api/adminSignup", async (req, res) => {
   try {
@@ -246,6 +247,13 @@ authorRouter.patch("/api/enableAttendace/:id", async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+//get Enable Attendace api value
+//Admin
+authorRouter.get("/api/getdata/EnableAttendace", async (req, res) => {
+  const user = await admin.findById("64183eb70be6dc9e95c0d18d");
+  res.json(user.EnableAttendace);
 });
 
 //**********************************************************************************************/
